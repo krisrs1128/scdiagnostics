@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scdiagnostics"
+authors = [
+  { name="Kris Sankaran", email="ksankaran@wisc.edu" },
+]
+version = "0.0.99"
+description = ""
+requires-python = ">=3.10"
+dependencies = [
+    "altair==6.0.0",
+    "pyarrow==23.0.1",
+    "scanpy==1.12",
+    "scipy==1.15.2",
+    "vegafusion==2.0.3",
+    "vl-convert-python>=1.8.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
