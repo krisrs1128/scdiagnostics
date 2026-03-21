@@ -173,6 +173,6 @@ def compare_moments(real, simulated, log_scale=True, labels=None, label_threshol
         labels = np.where(exceeds, real_.var_names, "")
 
     return (
-        compare_summary(real_, simulated_, means_summary, labels).properties(title="Means: Real vs. Simulated")
-        | compare_summary(real_, simulated_, sd_summary, labels).properties(title="Std. Dev.: Real vs. Simulated")
+        compare_summary(real_, simulated_, means_summary, labels).properties(title="Means")
+        | compare_summary(real_, simulated_, sd_summary, labels).properties(title="Standard Deviations")
     )
