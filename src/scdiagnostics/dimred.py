@@ -16,7 +16,12 @@ def plot_umap(
     transform=lambda x: np.log1p(x),
     **kwargs,
 ):
-    mapping = {"x": "UMAP1", "y": "UMAP2", "color": color, "shape": shape}
+    mapping = {
+        "x": alt.X("UMAP1", scale=alt.Scale(zero=False)),
+        "y": alt.Y("UMAP2", scale=alt.Scale(zero=False)),
+        "color": color,
+        "shape": shape,
+    }
     mapping = {k: v for k, v in mapping.items() if v is not None}
 
     adata_ = adata.copy()
@@ -55,7 +60,12 @@ def plot_pca(
     transform=lambda x: np.log1p(x),
     **kwargs,
 ):
-    mapping = {"x": "PCA1", "y": "PCA2", "color": color, "shape": shape}
+    mapping = {
+        "x": alt.X("PCA1", scale=alt.Scale(zero=False)),
+        "y": alt.Y("PCA2", scale=alt.Scale(zero=False)),
+        "color": color,
+        "shape": shape,
+    }
     mapping = {k: v for k, v in mapping.items() if v is not None}
 
     adata_ = adata.copy()
