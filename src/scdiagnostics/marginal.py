@@ -143,8 +143,8 @@ def compare_moments(real, simulated, log_scale=True, labels=None, label_threshol
     Parameters
     ----------
     log_scale : bool
-        If True, log-transform the gene-level statistics before plotting
-        (useful when counts span several orders of magnitude).
+        If True, log-transform the data before computing the gene-level
+        statistics (useful when counts span several orders of magnitude).
     labels : array-like of str, optional
         Gene labels aligned with the variables. Non-empty strings are
         rendered as text marks next to the corresponding point.
@@ -154,11 +154,11 @@ def compare_moments(real, simulated, log_scale=True, labels=None, label_threshol
         with their gene name in both panels.
     """
     real_, simulated_ = prepare_dense(real, simulated)
-    transform = np.log if log_scale else lambda x: x
+    transform = np.log1p if log_scale else lambda x: x
 
     def gene_summary(stat_fn):
         def summary(a):
-            return transform(np.asarray(stat_fn(a.X)).flatten())
+            return np.asarray(stat_fn(transform(a.X))).flatten()
         return summary
 
     means_summary = gene_summary(lambda X: X.mean(axis=0))
