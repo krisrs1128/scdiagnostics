@@ -103,8 +103,8 @@ def surface_heatmaps(
             alt.Chart(df)
             .mark_rect()
             .encode(
-                x=alt.X("spatial1:O", title="spatial1"),
-                y=alt.Y("spatial2:O", title="spatial2"),
+                x=alt.X("spatial1:O", title="", axis=alt.Axis(labels=False, ticks=False, domain=False)),
+                y=alt.Y("spatial2:O", title="", axis=alt.Axis(labels=False, ticks=False, domain=False)),
                 color=alt.Color(f"{value_col}:Q", scale=scale, title=color_title),
             )
             .properties(width=300, height=300, title=title)
@@ -113,7 +113,17 @@ def surface_heatmaps(
     return heatmap(fitted_df, fitted_title) | heatmap(obs_df, obs_title)
 
 
-def plot_mean_surface(sim, adata, basis_cols, gene_idx, n_grid=30, n_obs_bins=30):
+def plot_mean_surface(sim, adata, basis_cols=["spatial1", "spatial2"], gene=None, n_grid=30, n_obs_bins=30):
+    # Handle gene specification - automatically detect if gene is index or name
+    if isinstance(gene, str):
+        gene_idx = adata.var_names.get_loc(gene)
+        gene_name = gene
+    elif isinstance(gene, int):
+        gene_idx = gene
+        gene_name = adata.var_names[gene_idx]
+    else:
+        raise ValueError("gene must be either integer index or string name")
+
     fitted_df = fitted_surface_df(
         sim,
         adata,
@@ -129,18 +139,26 @@ def plot_mean_surface(sim, adata, basis_cols, gene_idx, n_grid=30, n_obs_bins=30
         .mean()
         .assign(mu=lambda d: np.log1p(d["mu"]))
     )
-    plots = surface_heatmaps(
+    return surface_heatmaps(
         fitted_df,
         obs_df,
         value_col="mu",
         color_title="log(mu+1)",
-        fitted_title=f"Fitted mean(x) - Gene {gene_idx}",
-        obs_title=f"Observed bin mean - Gene {gene_idx}",
+        fitted_title=f"Fitted mean(x) - Gene {gene_name}",
+        obs_title=f"Observed bin mean - Gene {gene_name}",
     )
-    return fitted_df, plots
 
 
-def plot_dispersion_surface(sim, adata, basis_cols, gene_idx, n_grid=10, n_obs_bins=10):
+def plot_dispersion_surface(sim, adata, basis_cols=["spatial1", "spatial2"], gene=None, n_grid=10, n_obs_bins=10):
+    if isinstance(gene, str):
+        gene_idx = adata.var_names.get_loc(gene)
+        gene_name = gene
+    elif isinstance(gene, int):
+        gene_idx = gene
+        gene_name = adata.var_names[gene_idx]
+    else:
+        raise ValueError("gene must be either integer index or string name")
+
     fitted_df = fitted_surface_df(
         sim,
         adata,
@@ -162,12 +180,31 @@ def plot_dispersion_surface(sim, adata, basis_cols, gene_idx, n_grid=10, n_obs_b
         .assign(dispersion=lambda d: np.log1p(d["dispersion"]))
         .dropna(subset=["dispersion"])
     )
-    plots = surface_heatmaps(
+    return surface_heatmaps(
         fitted_df,
         obs_df,
         value_col="dispersion",
         color_title="log(dispersion+1)",
-        fitted_title=f"Fitted dispersion(x) - Gene {gene_idx}",
-        obs_title=f"Observed bin dispersion - Gene {gene_idx}",
+        fitted_title=f"Fitted dispersion(x) - Gene {gene_name}",
+        obs_title=f"Observed bin dispersion - Gene {gene_name}",
     )
-    return fitted_df, plots
+
+def plot_spatial(adata, spatial_names=["spatial1", "spatial2"], transform=np.log1p, genes=None, width=200, height=200, columns=5):
+    genes = genes if genes is not None else list(adata.var_names[:10])
+    gene_idx = [adata.var_names.get_loc(g) for g in genes]
+
+    plot_df = pd.concat([
+        adata.obs[spatial_names].reset_index(drop=True),
+        pd.DataFrame(transform(dense_gene_counts(adata, gene_idx))).reset_index(drop=True)
+    ], axis=1)
+
+    plot_df.columns = spatial_names + genes
+
+    plot_df_melted = plot_df.melt(id_vars=spatial_names, var_name="gene", value_name="expression")
+    return alt.Chart(plot_df_melted).mark_point(size=1).encode(
+        x=spatial_names[0],
+        y=spatial_names[1],
+        fill=alt.Fill("expression", scale=alt.Scale(scheme="viridis")),
+        color=alt.Color("expression", scale=alt.Scale(scheme="viridis"))
+    ).properties(width=width, height=height)\
+    .facet(facet="gene", columns=columns)
