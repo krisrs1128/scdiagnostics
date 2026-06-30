@@ -94,3 +94,25 @@ def compare_umap(real, simulated, transform=lambda x: x, **kwargs):
 def compare_pca(real, simulated, transform=lambda x: x, **kwargs):
     adata = concat_real_sim(real, simulated)
     return plot_pca(adata, facet="source", transform=transform, **kwargs)
+
+
+def overlay_expression(
+    umap_pivot,
+    x="UMAP1:Q",
+    y="UMAP2:Q",
+    color="expression:Q",
+    column="gene:N",
+    row="source:N",
+    width=100,
+    height=100,
+):
+    return alt.Chart(umap_pivot)\
+        .mark_circle()\
+        .encode(
+            x=x,
+            y=y,
+            color=color,
+            column=alt.Column(column),
+            row=alt.Row(row)
+        )\
+        .properties(width=width, height=height)

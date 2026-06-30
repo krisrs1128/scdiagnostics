@@ -1,4 +1,4 @@
-from .dimred import plot_umap, plot_pca, compare_pca, compare_umap
+from .dimred import plot_umap, plot_pca, compare_pca, compare_umap, overlay_expression
 from .marginal import (
     compare_boxplot,
     compare_ecdf,
