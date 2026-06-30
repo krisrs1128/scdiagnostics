@@ -27,19 +27,19 @@ def compare_summary(real, simulated, summary_fun, labels=None):
     return chart
 
 
-def compare_means(real, simulated, transform=lambda x: x, labels=None):
+def compare_means(real, simulated, transform=np.log1p, labels=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(transform(a.X).mean(axis=0)).flatten()
     return compare_summary(real_, simulated_, summary, labels)
 
 
-def compare_variances(real, simulated, transform=lambda x: x, labels=None):
+def compare_variances(real, simulated, transform=np.log1p, labels=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(np.var(transform(a.X), axis=0)).flatten()
     return compare_summary(real_, simulated_, summary, labels)
 
 
-def compare_standard_deviation(real, simulated, transform=lambda x: x, labels=None):
+def compare_standard_deviation(real, simulated, transform=np.log1p, labels=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(np.std(transform(a.X), axis=0)).flatten()
     return compare_summary(real_, simulated_, summary, labels)
@@ -57,7 +57,7 @@ def compare_histogram2(sim_data, real_data, idx):
     plt.show()
 
 
-def compare_ecdf(adata, sim, var_names=None, max_plot=10, n_cols=5, transform=lambda x: x, **kwargs):
+def compare_ecdf(adata, sim, var_names=None, max_plot=10, n_cols=5, transform=np.log1p, **kwargs):
     if var_names is None:
         var_names = adata.var_names[:max_plot]
 
@@ -87,7 +87,7 @@ def compare_ecdf(adata, sim, var_names=None, max_plot=10, n_cols=5, transform=la
     return plot, combined
 
 
-def compare_boxplot(adata, sim, var_names=None, max_plot=20, transform=lambda x: x, **kwargs):
+def compare_boxplot(adata, sim, var_names=None, max_plot=20, transform=np.log1p, **kwargs):
     if var_names is None:
         var_names = adata.var_names[:max_plot]
 
@@ -112,7 +112,7 @@ def compare_boxplot(adata, sim, var_names=None, max_plot=20, transform=lambda x:
     return plot, combined
 
 
-def compare_histogram(adata, sim, var_names=None, max_plot=20, transform=lambda x: x, **kwargs):
+def compare_histogram(adata, sim, var_names=None, max_plot=10, transform=np.log1p, ncol=5, **kwargs):
     if var_names is None:
         var_names = adata.var_names[:max_plot]
 
@@ -128,7 +128,7 @@ def compare_histogram(adata, sim, var_names=None, max_plot=20, transform=lambda 
             y=alt.Y("count()").stack(None),
             color="source:N",
             facet=alt.Facet(
-                "variable", sort=alt.EncodingSortField("bin_maxbins_20_value")
+                "variable", sort=alt.EncodingSortField(f"bin_maxbins_{ncol}_value"), columns=ncol
             ),
         )
         .properties(**kwargs)

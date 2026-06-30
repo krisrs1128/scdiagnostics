@@ -13,7 +13,7 @@ def plot_umap(
     opacity=0.6,
     n_comps=20,
     n_neighbors=15,
-    transform=lambda x: np.log1p(x),
+    transform=np.log1p,
     **kwargs,
 ):
     mapping = {
@@ -44,6 +44,7 @@ def plot_umap(
     umap_df = pd.concat([umap_df, adata_.obs.reset_index(drop=True)], axis=1)
 
     # encode and visualize
+    alt.data_transformers.enable("vegafusion")
     chart = alt.Chart(umap_df).mark_point(opacity=opacity).encode(**mapping)
     if facet is not None:
         chart = chart.facet(column=alt.Facet(facet))
@@ -78,6 +79,7 @@ def plot_pca(
     pca_df = pd.concat([pca_df, adata_.obs.reset_index(drop=True)], axis=1)
 
     # plot
+    alt.data_transformers.enable("vegafusion")
     chart = alt.Chart(pca_df).mark_point(opacity=opacity).encode(**mapping)
     if facet is not None:
         chart = chart.facet(column=alt.Facet(facet))

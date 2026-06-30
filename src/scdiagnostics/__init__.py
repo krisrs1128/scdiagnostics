@@ -9,3 +9,7 @@ from .marginal import (
     compare_variances,
     compare_histogram2
 )
+from .spatial import (
+    plot_dispersion_surface,
+    plot_mean_surface
+)
