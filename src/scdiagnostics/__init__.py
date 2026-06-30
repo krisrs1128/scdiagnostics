@@ -11,5 +11,6 @@ from .marginal import (
 )
 from .spatial import (
     plot_dispersion_surface,
-    plot_mean_surface
+    plot_mean_surface,
+    plot_spatial
 )
