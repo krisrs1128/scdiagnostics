@@ -6,8 +6,10 @@ from .marginal import (
     compare_means,
     compare_moments,
     compare_standard_deviation,
+    compare_summary,
     compare_variances,
-    compare_histogram2
+    compare_histogram2,
+    gene_summary,
 )
 from .spatial import (
     plot_dispersion_surface,
