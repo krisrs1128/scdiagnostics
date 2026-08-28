@@ -5,7 +5,16 @@ import matplotlib.pyplot as plt
 from .data import prepare_dense, merge_samples
 
 
-def compare_summary(real, simulated, summary_fun, labels=None):
+def compare_summary(real, simulated, summary_fun, labels=None, color=None):
+    """Simulated against real, one point per variable, with a y=x reference.
+
+    Parameters
+    ----------
+    color : array-like, optional
+        Per-variable grouping, aligned with the variables. Points are coloured
+        by it and a legend is drawn, for splitting the comparison by a property
+        of the variable rather than of the fit.
+    """
     df = pd.DataFrame({"real": summary_fun(real), "simulated": summary_fun(simulated)})
 
     identity = pd.DataFrame(
@@ -14,9 +23,15 @@ def compare_summary(real, simulated, summary_fun, labels=None):
             "simulated": [df["real"].min(), df["real"].max()],
         }
     )
+    points = alt.Chart(df).mark_circle().encode(x="real", y="simulated")
+    if color is not None:
+        df["color"] = color
+        points = alt.Chart(df).mark_circle().encode(
+            x="real", y="simulated", color=alt.Color("color:N", title=None)
+        )
     chart = alt.Chart(identity).mark_line(color="#dedede").encode(
         x="real", y="simulated"
-    ) + alt.Chart(df).mark_circle().encode(x="real", y="simulated")
+    ) + points
 
     if labels is not None:
         df["label"] = labels
@@ -27,22 +42,31 @@ def compare_summary(real, simulated, summary_fun, labels=None):
     return chart
 
 
-def compare_means(real, simulated, transform=np.log1p, labels=None):
+def gene_summary(X):
+    """Per-gene mean, variance and zero fraction of a dense `(n_cells, n_genes)` array."""
+    return pd.DataFrame({
+        "mean": X.mean(axis=0),
+        "var": X.var(axis=0),
+        "zero_frac": (X == 0).mean(axis=0),
+    })
+
+
+def compare_means(real, simulated, transform=np.log1p, labels=None, color=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(transform(a.X).mean(axis=0)).flatten()
-    return compare_summary(real_, simulated_, summary, labels)
+    return compare_summary(real_, simulated_, summary, labels, color)
 
 
-def compare_variances(real, simulated, transform=np.log1p, labels=None):
+def compare_variances(real, simulated, transform=np.log1p, labels=None, color=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(np.var(transform(a.X), axis=0)).flatten()
-    return compare_summary(real_, simulated_, summary, labels)
+    return compare_summary(real_, simulated_, summary, labels, color)
 
 
-def compare_standard_deviation(real, simulated, transform=np.log1p, labels=None):
+def compare_standard_deviation(real, simulated, transform=np.log1p, labels=None, color=None):
     real_, simulated_ = prepare_dense(real, simulated)
     summary = lambda a: np.asarray(np.std(transform(a.X), axis=0)).flatten()
-    return compare_summary(real_, simulated_, summary, labels)
+    return compare_summary(real_, simulated_, summary, labels, color)
 
 
 def compare_histogram2(sim_data, real_data, idx):
