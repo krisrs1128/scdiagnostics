@@ -6,7 +6,8 @@ from scipy.spatial.distance import squareform
 from .data import prepare_dense, merge_wide_samples
 
 
-def compare_gene_pairs(adata, sim, var_names=None, max_plot=10, transform=np.log1p, width=100, height=100, **kwargs):
+def compare_gene_pairs(adata, sim, var_names=None, max_plot=10,
+                       transform=np.log1p, width=100, height=100, **kwargs):
     """Pairs scatterplot comparing gene-gene relationships
 
     These pairs of scatterplots are useful for checking whether the copula has
@@ -43,7 +44,9 @@ def _melt_corr(corr_df, value_name="correlation"):
     )
 
 
-def compare_correlation(adata, sim, var_names=None, max_plot=20, transform=np.log1p, method="average", width=250, height=250, **kwargs):
+def compare_correlation(adata, sim, var_names=None, max_plot=20,
+                        transform=np.log1p, method="average", width=250,
+                        height=250, **kwargs):
     """Real vs. simulated gene-gene correlation heatmap
 
     We sort the genes using average linkage hierarchical clustering on the real
