@@ -11,12 +11,35 @@ def adata_df(adata):
     )
 
 
+def wide_df(adata):
+    """Reshape to `(n_cells, n_genes)`
+
+    A wide data format is useful for working with scatterplot pair plots.
+    """
+    return pd.DataFrame(check_sparse(adata.X), columns=adata.var_names)
+
+
 def merge_samples(adata, sim):
     source = adata_df(adata)
     simulated = adata_df(sim)
     return pd.concat(
         {"real": source, "simulated": simulated}, names=["source"]
     ).reset_index(level="source")
+
+
+def merge_wide_samples(adata, sim):
+    """Analog of merge_samples for wide data
+
+    This is stacks the two datasets and adds a column for the (real vs.
+    simulated) source.
+    """
+    real_df = wide_df(adata)
+    simulated_df = wide_df(sim)
+    return (
+        pd.concat({"real": real_df, "simulated": simulated_df}, names=["source"])
+        .reset_index(level="source")
+        .reset_index(drop=True)
+    )
 
 
 def check_sparse(X):
