@@ -11,11 +11,11 @@ version = "0.1.2"
 description = ""
 requires-python = ">=3.10"
 dependencies = [
-    "altair==6.0.0",
-    "pyarrow==23.0.1",
-    "scanpy==1.12",
-    "scipy==1.15.2",
-    "vegafusion==2.0.3",
+    "altair>=6.0.0",
+    "pyarrow>=23.0.1",
+    "scanpy>=1.12",
+    "scipy>=1.15.2",
+    "vegafusion>=2.0.3",
     "vl-convert-python>=1.8.0"
 ]
 
