@@ -1,3 +1,4 @@
+from .pseudotime import plot_fitted_curve
 from .bivariate import compare_correlation, compare_gene_pairs
 from .dimred import plot_umap, plot_pca, compare_pca, compare_umap, overlay_expression
 from .marginal import (
