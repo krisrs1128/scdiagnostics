@@ -1,3 +1,5 @@
+from .pseudotime import plot_fitted_curve
+from .bivariate import compare_correlation, compare_gene_pairs
 from .dimred import plot_umap, plot_pca, compare_pca, compare_umap, overlay_expression
 from .marginal import (
     compare_boxplot,
@@ -6,6 +8,7 @@ from .marginal import (
     compare_means,
     compare_moments,
     compare_standard_deviation,
+    compare_summary,
     compare_variances,
     compare_histogram2,
 )
@@ -14,4 +17,5 @@ from .plot_fit import (
     plot_gene_correlations,
     plot_fit_by_covariate,
     plot_sampled_expression_by_covariate,
+    gene_summary,
 )
