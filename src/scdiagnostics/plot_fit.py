@@ -1,6 +1,6 @@
 """Diagnostic plots for assessing fitted single-cell generative models.
 
-The plotting functions in this module compare observed expression with predictions 
+The plotting functions in this module compare observed expression with predictions
 or samples from a fitted model.
 """
 
@@ -104,6 +104,9 @@ def _numeric_fit_chart(observed, mean, sdev, covariate, distribution):
     )
     fitted["lower"] = fitted["mean"] - fitted["sdev"]
     fitted["upper"] = fitted["mean"] + fitted["sdev"]
+    if distribution != "gaussian":
+        fitted["lower"] = fitted["lower"].clip(lower=0)
+
     band = alt.Chart(fitted).mark_area(opacity=0.3, color="orange").encode(
         x=x, y=alt.Y("lower:Q", title="Expression"), y2="upper:Q"
     )
@@ -113,7 +116,9 @@ def _numeric_fit_chart(observed, mean, sdev, covariate, distribution):
     return band + line + points
 
 
-def _categorical_fit_chart(observed, mean, sdev, covariate, category_order):
+def _categorical_fit_chart(
+    observed, mean, sdev, covariate, category_order, distribution,
+):
     observed = observed.copy()
     observed["jitter"] = np.random.default_rng(0).uniform(-0.5, 0.5, len(observed))
     fitted = pd.DataFrame(
@@ -126,6 +131,9 @@ def _categorical_fit_chart(observed, mean, sdev, covariate, category_order):
     )
     fitted["lower"] = fitted["mean"] - fitted["sdev"]
     fitted["upper"] = fitted["mean"] + fitted["sdev"]
+    if distribution != "gaussian":
+        fitted["lower"] = fitted["lower"].clip(lower=0)
+
     fitted["jitter"] = 0.0
     x = alt.X(
         field=covariate, type="nominal", title=covariate, sort=category_order,
@@ -170,6 +178,7 @@ def plot_fit_by_covariate(
     Poisson, and Gaussian fits also show a one-standard-deviation band.
     Categorical covariates show jittered observations with the model's
     category-level mean and one-standard-deviation error bars.
+    For nonnegative distributions we clip lower bounds at zero.
 
     Parameters
     ----------
@@ -196,7 +205,7 @@ def plot_fit_by_covariate(
             )
         else:
             chart = _categorical_fit_chart(
-                observed, mean, sdev, covariate, category_order
+                observed, mean, sdev, covariate, category_order, distribution
             )
         charts.append(
             chart.properties(
